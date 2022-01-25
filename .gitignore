@@ -1,0 +1,8 @@
+# Text editor data
+.vscode
+
+# Env vars used for debuging
+.env
+
+# The dependencies
+node_modules

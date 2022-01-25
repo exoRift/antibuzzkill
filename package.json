@@ -1,0 +1,31 @@
+{
+  "name": "antibuzzkill",
+  "version": "1.0.0",
+  "description": "Inactivity destroyer",
+  "main": "bot.js",
+  "scripts": {
+    "start": "dotenv -e .env node bot.js",
+    "dev": "dotenv -e .env nodemon bot.js"
+  },
+  "author": "exoRift",
+  "license": "MIT",
+  "dependencies": {
+    "cyclone-engine": "^1.4.3",
+    "mass-require": "^1.0.0",
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^4.1.1",
+    "eslint": "^8.7.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "nodemon": "^2.0.15"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exoRift/antibuzzkill.git"
+  }
+}
