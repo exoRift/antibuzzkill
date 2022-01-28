@@ -18,7 +18,9 @@ const {
   RANGEMAX,
   INSTANCE_MAX,
   GUILD,
-  API_URL
+  API_URL,
+  DROPBOX_TOKEN,
+  DROPBOX_PATH
 } = process.env
 
 const agent = new Agent({
@@ -39,11 +41,11 @@ const agent = new Agent({
 })
 
 const inacOptions = {
-  min: RANGEMIN,
-  max: RANGEMAX,
+  min: 5000,
+  max: 6000,
   maxPerInstance: INSTANCE_MAX
 }
 
-agent.attach('inacbuster', new InactivityBuster(inacOptions, agent.client, GUILD, API_URL))
+agent.attach('inacbuster', new InactivityBuster(inacOptions, agent.client, GUILD, API_URL, DROPBOX_TOKEN, DROPBOX_PATH))
 
 agent.connect()
