@@ -16,6 +16,7 @@ const {
   PREFIX,
   RANGEMIN,
   RANGEMAX,
+  INSTANCE_MAX,
   GUILD,
   API_URL
 } = process.env
@@ -37,6 +38,12 @@ const agent = new Agent({
   }
 })
 
-agent.attach('inacbuster', new InactivityBuster(RANGEMIN, RANGEMAX, agent.client, GUILD, API_URL))
+const inacOptions = {
+  min: RANGEMIN,
+  max: RANGEMAX,
+  maxPerInstance: INSTANCE_MAX
+}
+
+agent.attach('inacbuster', new InactivityBuster(inacOptions, agent.client, GUILD, API_URL))
 
 agent.connect()
