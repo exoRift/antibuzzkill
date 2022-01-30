@@ -1,10 +1,12 @@
-const fetch = require('node-fetch')
-const morph = require('../util/fetch-morph.js')
+const {
+  dropbox,
+  reddit
+} = require('./memefetch.js')
 
-const dlRegex = /\?dl\=0|$/
+const dlRegex = /\?dl=0|$/
 
 class InactivityBuster {
-  constructor (options, client, guild, apiurl, dbtoken, dbpath) {
+  constructor (options, client, guild, dbtoken, dbpath) {
     const {
       min,
       max,
@@ -16,13 +18,11 @@ class InactivityBuster {
     this._maxPerInstance = maxPerInstance
     this._client = client
     this._guild = guild
-    this._apiurl = apiurl
     this._dbtoken = dbtoken
     this._dbpath = dbpath
 
     this.lastMessageTimestamp = Date.now()
     this.instanceCount = 0
-    this.lastMemeType = false
 
     this.timeout = setTimeout(this.action.bind(this), this.getRandInterval())
   }
@@ -43,72 +43,16 @@ class InactivityBuster {
     if (this.instanceCount <= this._maxPerInstance) {
       this.refreshTimestamp(true)
 
-      if (!this.lastMemeType) {
-        this.lastMemeType = !this.lastMemeType
-
-        return fetch('https://api.dropboxapi.com/2/files/list_folder', {
-          method: 'POST',
-          headers: {
-            Authorization: this._dbtoken,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            path: this._dbpath
-          })
-        })
-          .then((files) => morph(files, 'json'))
-          .then(({ entries: files }) => {
-            const index = Math.round(Math.random() * files.length) 0
-
-            return fetch('https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings', {
-              method: 'POST',
-              headers: {
-                Authorization: this._dbtoken,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                path: files[index].path_lower,
-                settings: {
-                  audience: 'public',
-                  access: 'viewer',
-                  allow_download: true
-                }
-              })
-            })
-              .then((file) => morph(file, 'json'))
-              .then((file) => this.sendMeme({
-                title: file.name,
-                url: file.url.replace(dlRegex, '?raw=1')
-              }))
-
-              .catch((res) => res.status === 409
-                ? fetch('https://api.dropboxapi.com/2/sharing/list_shared_links', {
-                  method: 'POST',
-                  headers: {
-                    Authorization: this._dbtoken,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    path: files[index].path_lower,
-                    direct_only: true
-                  })
-                })
-                  .then((links) => morph(links, 'json'))
-                  .then(({ links: [file] }) => this.sendMeme({
-                    title: file.name,
-                    url: file.url.replace(dlRegex, '?raw=1')
-                  }))
-
-                  .catch(console.error)
-                : console.error(res))
-          })
-
+      if (Math.round(Math.random())) { // Random boolean
+        dropbox(this._dbtoken, this._dbpath)
+          .then((file) => this.sendMeme({
+            title: file.name,
+            url: file.url.replace(dlRegex, '?raw=1')
+          }))
           .catch(console.error)
       } else {
-        return fetch(this._apiurl)
-          .then((meme) => morph(meme, 'json'))
+        return reddit()
           .then(this.sendMeme)
-
           .catch(console.error)
       }
     }

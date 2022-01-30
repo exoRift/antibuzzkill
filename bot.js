@@ -8,7 +8,8 @@ const {
   onMessage
 } = require('./src/data/listeners/')
 const {
-  InactivityBuster
+  inactivitybuster: InactivityBuster,
+  memefetch
 } = require('./src/data/modules/')
 
 const {
@@ -18,7 +19,6 @@ const {
   RANGEMAX,
   INSTANCE_MAX,
   GUILD,
-  API_URL,
   DROPBOX_TOKEN,
   DROPBOX_PATH
 } = process.env
@@ -41,11 +41,12 @@ const agent = new Agent({
 })
 
 const inacOptions = {
-  min: 5000,
-  max: 6000,
+  min: RANGEMIN,
+  max: RANGEMAX,
   maxPerInstance: INSTANCE_MAX
 }
 
-agent.attach('inacbuster', new InactivityBuster(inacOptions, agent.client, GUILD, API_URL, DROPBOX_TOKEN, DROPBOX_PATH))
+agent.attach('inacbuster', new InactivityBuster(inacOptions, agent.client, GUILD, DROPBOX_TOKEN, DROPBOX_PATH))
+agent.attach('memefetch', memefetch)
 
 agent.connect()
