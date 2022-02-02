@@ -47,12 +47,13 @@ class InactivityBuster {
         dropbox(this._dbtoken, this._dbpath)
           .then((file) => this.sendMeme({
             title: file.name,
-            url: file.url.replace(dlRegex, '?raw=1')
+            url: file.url.replace(dlRegex, '?raw=1'),
+            footer: 'Custom Dropbox meme'
           }))
           .catch(console.error)
       } else {
         return reddit()
-          .then(this.sendMeme)
+          .then(this.sendMeme.bind(this))
           .catch(console.error)
       }
     }
@@ -75,11 +76,9 @@ class InactivityBuster {
           image: {
             url: meme.url
           },
-          footer: meme.author
-            ? {
-                text: `Posted by ${meme.author} in r/${meme.subreddit}`
-              }
-            : undefined
+          footer: {
+            text: meme.author ? `Posted by ${meme.author} in r/${meme.subreddit}` : meme.footer
+          }
         }
       })
     } else console.warn('NO CHANNEL FOUND WITH PERMISSIONS')
