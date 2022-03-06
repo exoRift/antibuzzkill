@@ -10,7 +10,7 @@ const {
 const {
   inactivitybuster: InactivityBuster,
   memefetch,
-  qotd: Qotd
+  scheduler: Scheduler
 } = require('./src/data/modules/')
 
 const {
@@ -51,7 +51,7 @@ const inacOptions = {
 
 agent.attach('inacbuster', new InactivityBuster(inacOptions, agent.client, GUILD, DROPBOX_TOKEN, DROPBOX_PATH))
 agent.attach('memefetch', memefetch)
-agent.attach('qotd', new Qotd(agent.client, SPREADSHEET, QUESTION_CHANNEL))
+agent.attach('scheduler', new Scheduler(agent.client, SPREADSHEET, QUESTION_CHANNEL))
 
 agent.connect()
-agent.attachments.qotd.init()
+agent.attachments.scheduler.init()

@@ -3,18 +3,19 @@ const {
 } = require('googleapis')
 const sheets = google.sheets('v4')
 
-const scopes = ['https://www.googleapis.com/auth/spreadsheets']
-
 const {
+  FILLER_CHANNELS,
   GOOGLE_CLIENT_EMAIL,
   GOOGLE_PRIVATE_KEY
 } = process.env
+
+const scopes = ['https://www.googleapis.com/auth/spreadsheets']
 
 class QOTDManager {
   constructor (client, spreadsheet, channel) {
     this._client = client
     this._spreadsheet = spreadsheet
-    this._channel = channel
+    this._qotdChannel = channel
   }
 
   _getAuth () {
@@ -41,18 +42,33 @@ class QOTDManager {
     return desired.getTime() - current.getTime()
   }
 
+  _getRandomTime (tomorrow) {
+    const current = new Date()
+    const midnight = new Date(
+      current.getFullYear(),
+      current.getMonth(),
+      current.getDate() + (tomorrow ? 1 : 0),
+      24 /* midnight */
+    )
+    const difference = midnight.getTime() - current.getTime()
+
+    return Math.round(Math.random() * difference)
+  }
+
   async init () {
     this._token = await this._getAuth()
 
-    const wait = this._calcTimeUntilNoon()
+    const qotdWait = this._calcTimeUntilNoon()
+    const fillerWait = this._getRandomTime(false)
 
-    this.timeout = setTimeout(this.announce.bind(this), wait)
+    this.qotdTimeout = setTimeout(this.announce.bind(this), qotdWait)
+    this.fillerTimeout = setTimeout(this.filler.bind(this), fillerWait)
 
-    console.info(`Next Question Of The Day scheduled ${Math.floor(wait / 3600000)} hour(s) from now`)
+    console.info(`Next Question Of The Day scheduled ${Math.floor(qotdWait / 3600000)} hour(s) from now`)
   }
 
   async announce () {
-    this.timeout = setTimeout(this.announce.bind(this), 86400000 /* 24 hours */)
+    this.qotdTimeout = setTimeout(this.announce.bind(this), 86400000 /* 24 hours */)
 
     const sheet = await sheets.spreadsheets.get({
       auth: this._token,
@@ -65,7 +81,7 @@ class QOTDManager {
       r.values[2].effectiveFormat.backgroundColor.blue)
     const question = sheet.data.sheets[0].data[0].rowData[index]
 
-    return this._client.createMessage(this._channel, `QOTD: __**${question.values[2].effectiveValue.stringValue}**__`)
+    return this._client.createMessage(this._qotdChannel, `QOTD: __**${question.values[2].effectiveValue.stringValue}**__`)
       .then(() => sheets.spreadsheets.batchUpdate({
         auth: this._token,
         spreadsheetId: this._spreadsheet,
@@ -95,6 +111,25 @@ class QOTDManager {
           }]
         }
       }))
+  }
+
+  async filler () {
+    const fillerWait = this._getRandomTime(true)
+    this.fillerTimeout = setTimeout(this.filler.bind(this), fillerWait)
+
+    const sheet = await sheets.spreadsheets.get({
+      auth: this._token,
+      spreadsheetId: this._spreadsheet,
+      includeGridData: true
+    })
+
+    const index = Math.round(Math.random() * (sheet.data.sheets[1].data[0].rowData.length - 1))
+    const statement = sheet.data.sheets[1].data[0].rowData[index]
+
+    const channels = FILLER_CHANNELS.split(' ')
+    const channel = channels[Math.round(Math.random() * (channels.length - 1))]
+
+    return this._client.createMessage(channel, statement.values[2].effectiveValue.stringValue)
   }
 }
 
