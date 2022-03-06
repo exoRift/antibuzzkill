@@ -5,6 +5,11 @@ const sheets = google.sheets('v4')
 
 const scopes = ['https://www.googleapis.com/auth/spreadsheets']
 
+const {
+  GOOGLE_CLIENT_EMAIL,
+  GOOGLE_PRIVATE_KEY
+} = process.env
+
 class QOTDManager {
   constructor (client, spreadsheet, channel) {
     this._client = client
@@ -14,7 +19,10 @@ class QOTDManager {
 
   _getAuth () {
     const auth = new google.auth.GoogleAuth({
-      keyFile: './service_account_credentials.json',
+      credentials: {
+        client_email: GOOGLE_CLIENT_EMAIL,
+        private_key: GOOGLE_PRIVATE_KEY
+      },
       scopes
     })
 
