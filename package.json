@@ -11,6 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "cyclone-engine": "^1.4.3",
+    "googleapis": "^95.0.0",
     "mass-require": "^1.0.0",
     "node-fetch": "^2.6.7"
   },

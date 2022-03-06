@@ -1,8 +1,11 @@
 # Text editor data
-.vscode
+.vscode/
 
 # Env vars used for debuging
 .env
 
 # The dependencies
-node_modules
+node_modules/
+
+# Credentials
+service_account_credentials.json
