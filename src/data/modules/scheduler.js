@@ -2,16 +2,21 @@ const {
   google
 } = require('googleapis')
 const sheets = google.sheets('v4')
+const memefetch = require('./memefetch.js')
 
 const {
+  DROPBOX_TOKEN,
+  DROPBOX_PATH,
   FILLER_CHANNELS,
+  MEME_CHANNELS,
   GOOGLE_CLIENT_EMAIL,
   GOOGLE_PRIVATE_KEY
 } = process.env
 
+const dlRegex = /\?dl=0|$/
 const scopes = ['https://www.googleapis.com/auth/spreadsheets']
 
-class QOTDManager {
+class Scheduler {
   constructor (client, spreadsheet, channel) {
     this._client = client
     this._spreadsheet = spreadsheet
@@ -60,9 +65,11 @@ class QOTDManager {
 
     const qotdWait = this._calcTimeUntilNoon()
     const fillerWait = this._getRandomTime(false)
+    const memeWait = this._getRandomTime(false)
 
     this.qotdTimeout = setTimeout(this.announce.bind(this), qotdWait)
     this.fillerTimeout = setTimeout(this.filler.bind(this), fillerWait)
+    this.memeTimeout = setTimeout(this.filler.bind(this), memeWait)
 
     console.info(`Next Question Of The Day scheduled ${Math.floor(qotdWait / 3600000)} hour(s) from now`)
   }
@@ -130,7 +137,39 @@ class QOTDManager {
     const channel = channels[Math.round(Math.random() * (channels.length - 1))]
 
     return this._client.createMessage(channel, statement.values[2].effectiveValue.stringValue)
+      .catch(console.error)
+  }
+
+  async sendMeme () {
+    const memeWait = this._getRandomTime(true)
+    this.memeTimeout = setTimeout(this.sendMeme.bind(this), memeWait)
+
+    const sources = Object.keys(memefetch)
+    const source = sources[Math.round(Math.random() * (sources.length - 1))]
+    const channels = MEME_CHANNELS.split(' ')
+    const channel = channels[Math.round(Math.random() * (channels.length - 1))]
+
+    return memefetch[source](DROPBOX_TOKEN, DROPBOX_PATH)
+      .then((meme) => this._client.createMessage(channel, {
+        embed: {
+          author: {
+            name: 'Enjoy this random meme'
+          },
+          title: meme.title,
+          url: meme.postLink,
+          color: Math.random() * 0xffffff,
+          image: {
+            url: meme.url.replace(dlRegex, '?raw=1')
+          },
+          footer: meme.author
+            ? {
+                text: `Posted by ${meme.author} in r/${meme.subreddit}`
+              }
+            : undefined
+        }
+      }))
+      .catch(console.error)
   }
 }
 
-module.exports = QOTDManager
+module.exports = Scheduler
