@@ -153,7 +153,7 @@ class Scheduler {
       .then((meme) => this._client.createMessage(channel, {
         embed: {
           author: {
-            name: 'Enjoy this random meme'
+            name: 'RANDOM MEME ALERT'
           },
           title: meme.title,
           url: meme.postLink,
