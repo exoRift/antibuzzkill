@@ -25,6 +25,10 @@
     "eslint-plugin-standard": "^5.0.0",
     "nodemon": "^2.0.15"
   },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.1.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/exoRift/antibuzzkill.git"
