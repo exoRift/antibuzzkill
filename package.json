@@ -4,7 +4,7 @@
   "description": "Inactivity destroyer",
   "main": "bot.js",
   "scripts": {
-    "start": "dotenv -e .env node bot.js",
+    "start": "node bot.js",
     "dev": "dotenv -e .env nodemon bot.js"
   },
   "author": "exoRift",
