@@ -16,8 +16,8 @@ const {
 const {
   TOKEN,
   PREFIX,
-  RANGEMIN,
-  RANGEMAX,
+  RANGE_MIN,
+  RANGE_MAX,
   INSTANCE_MAX,
   GUILD,
   DROPBOX_TOKEN,
@@ -44,8 +44,8 @@ const agent = new Agent({
 })
 
 const inacOptions = {
-  min: RANGEMIN,
-  max: RANGEMAX,
+  min: RANGE_MIN,
+  max: RANGE_MAX,
   maxPerInstance: INSTANCE_MAX
 }
 
