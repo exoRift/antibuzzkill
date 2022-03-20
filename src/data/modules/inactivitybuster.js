@@ -5,6 +5,10 @@ const {
 
 const dlRegex = /\?dl=0|$/
 
+const {
+  INACTIVITY_CHANNEL_BLACKLIST
+} = process.env
+
 class InactivityBuster {
   constructor (options, client, guild, dbtoken, dbpath) {
     const {
@@ -60,7 +64,10 @@ class InactivityBuster {
   }
 
   sendMeme (meme) {
+    const blacklist = INACTIVITY_CHANNEL_BLACKLIST.split(' ')
+
     const channels = this._client.guilds.get(this._guild).channels.filter((c) => c.permissionsOf(this._client.user.id).has('sendMessages') &&
+    !blacklist.includes(c.id) &&
     !c.type)
     const channel = channels[Math.round(Math.random() * (channels.length - 1))]
 
